@@ -20,6 +20,7 @@ module.exports = {
   ],
 
   rules: {
-    'prettier/prettier': 'error'
+    'prettier/prettier': 'error',
+    'vue/v-on-event-hyphenation': 'never'
   }
 }

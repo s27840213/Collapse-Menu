@@ -1,30 +1,124 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
-<template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+<template lang="pug">
+nav-menu(
+  :active-item-id="activeItemId"
+  :openedIndexs="openedIndexs"
+  :menu="drinks"
+  :depth="0"
+  @update:activeItemId="updateActiveItemId"
+)
+select(class="selector" v-model="activeItemId")
+  option(v-for="[key, val] in drinksMap" :key="key" :value="key") {{ val.name }}
 </template>
 
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import NavMenu from './components/NavMenu.vue'
+import type { DrinksMap, IMenuItem } from './interface'
+
+// assume this to be static data
+const drinks: Array<IMenuItem> = [
+  {
+    name: '好喝黑糖',
+    id: '64f',
+    items: [
+      {
+        name: '黑糖鮮奶',
+        id: '445',
+        items: [
+          { name: '黑糖珍珠鮮奶', id: '37a' },
+          { name: '黑糖芋圓鮮奶', id: 'feb' },
+          { name: '黑糖蒟蒻鮮奶', id: '59c' }
+        ]
+      },
+      {
+        name: '黑糖冬瓜',
+        id: '29e',
+        items: [
+          { name: '黑糖冬瓜牛奶', id: 'ac3' },
+          { name: '黑糖冬瓜珍珠', id: 'ca0' }
+        ]
+      }
+    ]
+  },
+  {
+    name: '茶',
+    id: '6c3',
+    items: [
+      { name: '烏龍綠', id: '5dc' },
+      { name: '綠茶', id: 'b5f' },
+      { name: '紅茶', id: 'b09' },
+      { name: '青茶', id: '887' }
+    ]
+  },
+  {
+    name: '咖啡',
+    id: 'c81',
+    items: [
+      {
+        name: '黑咖啡',
+        id: 'e02',
+        items: [
+          { name: '濃縮咖啡', id: 'd20' },
+          { name: '美式咖啡', id: '1f8' }
+        ]
+      },
+      {
+        name: '牛奶咖啡',
+        id: 'd7a',
+        items: [
+          {
+            name: '拿鐵',
+            id: 'c09',
+            items: [
+              { name: '黑糖拿鐵', id: 'db2' },
+              { name: '榛果拿鐵', id: '9f6' },
+              { name: '香草拿鐵', id: 'b61' }
+            ]
+          },
+          { name: '卡布奇諾', id: '9ac' },
+          { name: '摩卡', id: 'ce8' }
+        ]
+      }
+    ]
+  }
+]
+const activeItemId = ref('none')
+
+// recursively flatten the drinks array, and create a map
+const flatten = (
+  items: Array<IMenuItem>,
+  result: DrinksMap = new Map(),
+  path: Array<number> = []
+) => {
+  for (let i = 0; i < items.length; i++) {
+    const currItem = items[i]
+    const currPath = [...path, i]
+    result.set(currItem.id, { name: currItem.name, path: currPath })
+
+    if (currItem.items) {
+      flatten(currItem.items, result, currPath)
+    }
+  }
+
+  return result
+}
+
+// assume this to be static data too
+const drinksMap = new Map().set('none', { name: '-', path: [] })
+
+flatten(drinks, drinksMap)
+
+const openedIndexs = computed(() => {
+  return drinksMap.get(activeItemId.value)?.path || []
+})
+
+const updateActiveItemId = (id: string) => {
+  activeItemId.value = id
+}
+</script>
+
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.selector {
+  margin-top: 0.5rem;
 }
 </style>
