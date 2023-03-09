@@ -1,18 +1,21 @@
 <template lang="pug">
-nav-menu(
-  :active-item-id="activeItemId"
-  :openedIndexs="openedIndexs"
-  :menu="drinks"
-  :depth="0"
-  @update:activeItemId="updateActiveItemId"
-)
+collapse-menu
+  collapse-item(
+    v-for="(item, index) in drinks"
+    :activeItemId="activeItemId"
+    :item="item"
+    :itemIndex="index"
+    :openedMenuIndexes="openedMenuIndexes"
+    :depth="0"
+    @update:activeItemId="(id: string) => updateActiveItemId(id)")
 select(class="selector" v-model="activeItemId")
   option(v-for="[key, val] in drinksMap" :key="key" :value="key") {{ val.name }}
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import NavMenu from './components/NavMenu.vue'
+import { computed, onMounted, ref } from 'vue'
+import CollapseItem from './components/CollapseItem.vue'
+import CollapseMenu from './components/CollapseMenu.vue'
 import type { DrinksMap, IMenuItem } from './interface'
 
 // assume this to be static data
@@ -82,9 +85,8 @@ const drinks: Array<IMenuItem> = [
     ]
   }
 ]
-const activeItemId = ref('none')
 
-// recursively flatten the drinks array, and create a map
+// recursively flatten the drinks array, and create a map for quick search
 const flatten = (
   items: Array<IMenuItem>,
   result: DrinksMap = new Map(),
@@ -103,22 +105,31 @@ const flatten = (
   return result
 }
 
+const activeItemId = ref('none')
+const updateActiveItemId = (id: string) => {
+  activeItemId.value = id === activeItemId.value ? 'none' : id
+}
+
+onMounted(() => {
+  const id = localStorage.getItem('activeItemId')
+  if (id) {
+    activeItemId.value = id
+  }
+})
+
 // assume this to be static data too
 const drinksMap = new Map().set('none', { name: '-', path: [] })
 
-flatten(drinks, drinksMap)
-
-const openedIndexs = computed(() => {
-  return drinksMap.get(activeItemId.value)?.path || []
+const openedMenuIndexes = computed(() => {
+  return drinksMap.get(activeItemId.value)?.path
 })
 
-const updateActiveItemId = (id: string) => {
-  activeItemId.value = id
-}
+flatten(drinks, drinksMap)
 </script>
 
 <style scoped>
 .selector {
   margin-top: 0.5rem;
+  width: 120px;
 }
 </style>
