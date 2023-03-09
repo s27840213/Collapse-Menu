@@ -1,5 +1,5 @@
 <template lang="pug">
-div(class="nav-item" @click.stop="handleClickTrigger(item.id, itemIndex)")
+div(class="nav-item" @click.stop="handleClickTrigger(item, itemIndex)")
   div(
     class="nav-item__trigger"
     :class="{ 'nav-item__trigger--active': item.id === activeItemId }"
@@ -18,11 +18,11 @@ div(class="nav-item" @click.stop="handleClickTrigger(item.id, itemIndex)")
         @before-leave="transitionStart"
         @after-leave="transitionEnd")
         collapse-item(
-          v-show="isOpen"
+          v-if="isOpen"
           :item="subItem"
           :itemIndex="index"
           :activeItemId="activeItemId"
-          :openedMenuIndexes="openedMenuIndexes"
+          :activeIdPath="activeIdPath"
           :depth="depth + 1"
           @update:activeItemId="(id) => updateActiveItemId(id)")
 </template>
@@ -47,8 +47,8 @@ const props = defineProps({
     type: String,
     required: true
   },
-  openedMenuIndexes: {
-    type: Array as () => Array<number>,
+  activeIdPath: {
+    type: Array as () => Array<string>,
     required: true
   },
   depth: {
@@ -59,29 +59,46 @@ const props = defineProps({
 
 const emits = defineEmits(['update:activeItemId'])
 
-const currDepthActiveIndex = computed(() => {
-  return props.openedMenuIndexes[props.depth]
+const currDepthActiveId = computed(() => {
+  return props.activeIdPath[props.depth]
 })
 
 const isOpen = computed(() => {
   return (
     props.item.id === props.activeItemId ||
-    props.itemIndex === currDepthActiveIndex.value
+    props.item.id === currDepthActiveId.value
   )
 })
 
 const updateActiveItemId = (id: string) => {
-  emits('update:activeItemId', id === props.activeItemId ? 'none' : id)
-}
-
-const handleClickTrigger = (id: string, index: number) => {
   emits(
     'update:activeItemId',
-    checkIsOpen(id, index, props.depth) ? 'none' : id
+    id === props.activeItemId
+      ? props.depth === 0
+        ? 'none'
+        : props.activeIdPath[props.depth - 1]
+      : id
   )
 }
-const checkIsOpen = (id: string, index: number, depth: number) => {
-  return id === props.activeItemId || index === currDepthActiveIndex.value
+
+const handleClickTrigger = (item: IMenuItem) => {
+  /**
+   * @Question does the item that doesn't have sub item could be highlighted?
+   */
+  // if (!item.items) {
+  //   return
+  // }
+  emits(
+    'update:activeItemId',
+    checkIsOpen(item.id)
+      ? props.depth === 0
+        ? 'none'
+        : props.activeIdPath[props.depth - 1]
+      : item.id
+  )
+}
+const checkIsOpen = (id: string) => {
+  return id === props.activeItemId || id === currDepthActiveId.value
 }
 
 const transitionStart = (el: HTMLElement) => {
@@ -108,7 +125,7 @@ const triggerPadding = computed(() => {
 
   &__trigger {
     position: relative;
-    display: flex;
+    display: fldex;
     align-items: center;
     box-sizing: border-box;
     &--active {
@@ -116,7 +133,7 @@ const triggerPadding = computed(() => {
     }
 
     &:hover {
-      background-color: #dadada;
+      background-color: #e7e5e5;
     }
   }
 

@@ -5,7 +5,7 @@ collapse-menu
     :activeItemId="activeItemId"
     :item="item"
     :itemIndex="index"
-    :openedMenuIndexes="openedMenuIndexes"
+    :activeIdPath="activeIdPath"
     :depth="0"
     @update:activeItemId="(id: string) => updateActiveItemId(id)")
 select(class="selector" v-model="activeItemId")
@@ -90,12 +90,12 @@ const drinks: Array<IMenuItem> = [
 const flatten = (
   items: Array<IMenuItem>,
   result: DrinksMap = new Map(),
-  path: Array<number> = []
+  idPath: Array<string> = []
 ) => {
   for (let i = 0; i < items.length; i++) {
     const currItem = items[i]
-    const currPath = [...path, i]
-    result.set(currItem.id, { name: currItem.name, path: currPath })
+    const currPath = [...idPath, currItem.id]
+    result.set(currItem.id, { name: currItem.name, idPath: currPath })
 
     if (currItem.items) {
       flatten(currItem.items, result, currPath)
@@ -108,20 +108,22 @@ const flatten = (
 const activeItemId = ref('none')
 const updateActiveItemId = (id: string) => {
   activeItemId.value = id === activeItemId.value ? 'none' : id
+  localStorage.setItem('activeItemId', activeItemId.value)
 }
 
 onMounted(() => {
   const id = localStorage.getItem('activeItemId')
+  console.log(localStorage.getItem('activeItemId'))
   if (id) {
     activeItemId.value = id
   }
 })
 
 // assume this to be static data too
-const drinksMap = new Map().set('none', { name: '-', path: [] })
+const drinksMap = new Map().set('none', { name: '-', idPath: [] })
 
-const openedMenuIndexes = computed(() => {
-  return drinksMap.get(activeItemId.value)?.path
+const activeIdPath = computed(() => {
+  return drinksMap.get(activeItemId.value)?.idPath
 })
 
 flatten(drinks, drinksMap)

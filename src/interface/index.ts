@@ -4,4 +4,4 @@ export interface IMenuItem {
   items?: IMenuItem[]
 }
 
-export type DrinksMap = Map<string, { name: string; path: Array<number> }>
+export type DrinksMap = Map<string, { name: string; idPath: Array<string> }>
