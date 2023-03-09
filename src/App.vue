@@ -87,6 +87,14 @@ const drinks: Array<IMenuItem> = [
 ]
 
 // recursively flatten the drinks array, and create a map for quick search
+/**
+ *
+ * @param items - the array to be flatten
+ * @param result - the result map we created
+ * @param idPath - I don't know how to properly name this array Orz, this is used to record the active node in different depth
+ *
+ * for example, the depth 3 item is highlighted, we must make this item's ascendant parent node to be in open state
+ */
 const flatten = (
   items: Array<IMenuItem>,
   result: DrinksMap = new Map(),
@@ -104,16 +112,22 @@ const flatten = (
 
   return result
 }
-
+/**
+ * @activeItemId - the current active item id
+ */
 const activeItemId = ref('none')
+
+/**
+ * @function updateActiveItemId - used to update the active item id, and record the id into local storage
+ */
 const updateActiveItemId = (id: string) => {
   activeItemId.value = id === activeItemId.value ? 'none' : id
   localStorage.setItem('activeItemId', activeItemId.value)
 }
 
+// when the app mounted, get the id from local storage and update the active item id
 onMounted(() => {
   const id = localStorage.getItem('activeItemId')
-  console.log(localStorage.getItem('activeItemId'))
   if (id) {
     activeItemId.value = id
   }
@@ -122,6 +136,7 @@ onMounted(() => {
 // assume this to be static data too
 const drinksMap = new Map().set('none', { name: '-', idPath: [] })
 
+// get the active item id from depth 0 to depth n (n is the depth of the active item)
 const activeIdPath = computed(() => {
   return drinksMap.get(activeItemId.value)?.idPath
 })

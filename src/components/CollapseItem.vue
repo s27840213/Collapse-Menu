@@ -63,6 +63,11 @@ const currDepthActiveId = computed(() => {
   return props.activeIdPath[props.depth]
 })
 
+/**
+ * When the item is active and the sub item of the current item is active, set isOpen to true
+ * How I check the sub item is active? Actually, I didn't check bcz when I flatten the drinks data,
+ * I have record all the active in certain depth when the certain item is active
+ */
 const isOpen = computed(() => {
   return (
     props.item.id === props.activeItemId ||
@@ -70,6 +75,11 @@ const isOpen = computed(() => {
   )
 })
 
+/**
+ * The rule we update the activeItemId:
+ * 1. if the click item isn't active, set its id to be activeItemId
+ * 2. if not the 1 condition, make the parent item active, and if don't have parent item, make the activeItem to 'none'
+ */
 const updateActiveItemId = (id: string) => {
   emits(
     'update:activeItemId',
