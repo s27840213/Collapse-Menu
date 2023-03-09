@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "/Collapse-Menu/",
   plugins: [vue()],
   resolve: {
     alias: {

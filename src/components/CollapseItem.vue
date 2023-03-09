@@ -1,5 +1,5 @@
 <template lang="pug">
-div(class="nav-item" @click.stop="handleClickTrigger(item, itemIndex)")
+div(class="nav-item" @click.stop="handleClickTrigger(item)")
   div(
     class="nav-item__trigger"
     :class="{ 'nav-item__trigger--active': item.id === activeItemId }"

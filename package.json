@@ -1,12 +1,15 @@
 {
-  "name": "vue3-template-lite",
+  "name": "collapse-menu",
+  "homepage": "https://s27840213.github.io/Collapse-Menu/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy-gh": "gh-pages -d dist",
+    "predeploy": "npm run build"
   },
   "dependencies": {
     "@volar/vue-language-plugin-pug": "^1.2.0",
@@ -27,6 +30,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.9.0",
     "eslint-plugin-vue-pug": "^0.6.0",
+    "gh-pages": "^5.0.0",
     "prettier": "^2.8.4",
     "pug": "^3.0.2",
     "sass": "^1.58.3",
